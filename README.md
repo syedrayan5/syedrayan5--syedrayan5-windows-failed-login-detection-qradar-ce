@@ -28,3 +28,76 @@ This project demonstrates how to forward Windows Security Logs to **IBM QRadar C
 ## 🔄 Log Flow Diagram
 Windows VM (NXLog) --> QRadar CE (UDP 514) --> Log Activity --> Custom Rule --> Synthetic Event
 
+
+## 🔧 NXLog Configuration (Snippet)
+
+Configured in C:\Program Files\nxlog\conf\nxlog.conf
+
+define ROOT C:\Program Files\nxlog
+Moduledir %ROOT%\modules
+CacheDir %ROOT%\data
+Pidfile %ROOT%\data\nxlog.pid
+LogFile %ROOT%\data\nxlog.log
+
+<Extension syslog>
+    Module      xm_syslog
+</Extension>
+
+<Input in>
+    Module      im_msvistalog
+</Input>
+
+<Output out>
+    Module      om_udp
+    Host        QRadar IP
+    Port        514
+    Exec        to_syslog_ietf();
+</Output>
+
+<Route 1>
+    Path        in => out
+</Route>
+
+
+🕵️‍♂️ QRadar Rule Creation
+Rule Tests Stack
+✅ When the event QID is one of the following: 28250014 (Windows failed login)
+
+✅ And when the event(s) were detected by log source type: WinCollect or NXLog
+
+✅ Detected by the Local system
+![rule creation 1](https://github.com/user-attachments/assets/cd6812c5-af2e-4ba6-9b35-7c37980f0a8f)
+
+
+Rule Response & Actions
+✅ Dispatch New Event
+
+✅ Annotate Event (e.g. "Windows Failed Login Detected")
+![rule creation 2](https://github.com/user-attachments/assets/7861c2e7-8043-4cd2-a614-d528379fae32)
+
+📊 QRadar Log Activity
+After simulating failed login attempts from the Windows VM:
+
+You can see:
+
+✅ The original failed login logs
+
+✅ The custom dispatched event from your rule
+![log activity](https://github.com/user-attachments/assets/42f5db69-5487-43ef-a9c3-7cfb641b509f)
+
+
+✅ What This Project Demonstrates
+Practical understanding of SIEM log forwarding
+
+Ability to create custom detection rules
+
+Experience configuring NXLog
+
+Use of QRadar Rule Wizard for basic correlation
+
+Awareness of SIEM limitations and capabilities
+
+
+
+
+
